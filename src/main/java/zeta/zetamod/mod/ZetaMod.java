@@ -1,9 +1,14 @@
 package zeta.zetamod.mod;
 
+import net.java.games.input.Component;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.material.Material;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -31,8 +36,11 @@ public class ZetaMod
     // Directly reference a log4j logger.
     private static final Logger LOGGER = LogManager.getLogger();
     private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, MOD_ID);
-
-    public static final RegistryObject<Block> FORGE_BLOCK = BLOCKS.register("forge_block", () -> new Block(Block.Properties.of(Material.METAL)));
+    private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, MOD_ID);
+    public static final Block FORGE_BLOCK_BLOCK = new Block(Block.Properties.of(Material.METAL));
+    public static final RegistryObject<Block> FORGE_BLOCK = BLOCKS.register("forge_block", () -> FORGE_BLOCK_BLOCK);
+    //public static final RegistryObject<BlockItem> FORGE_BLOCKITEM_ITEM = RegistryObject.of(new ResourceLocation("zetamod:forge_block"), ForgeRegistries.ITEMS);
+    public static final RegistryObject<Item> FORGE_BLOCK_ITEM = ITEMS.register("forge_block", () -> new BlockItem(FORGE_BLOCK_BLOCK, new Item.Properties().tab(ItemGroup.TAB_BUILDING_BLOCKS)));
     public ZetaMod() {
         // Register the setup method for modloading
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::setup);
@@ -45,6 +53,11 @@ public class ZetaMod
 
         // Register ourselves for server and other game events we are interested in
         MinecraftForge.EVENT_BUS.register(this);
+
+        LOGGER.info("Registering textures.textures!");
+        // Register textures.textures here
+        BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
     }
 
     private void setup(final FMLCommonSetupEvent event)
@@ -53,9 +66,7 @@ public class ZetaMod
         LOGGER.info("HELLO FROM PREINIT");
         LOGGER.info("DIRT BLOCK >> {}", Blocks.DIRT.getRegistryName());
 
-        LOGGER.info("Registering blocks!");
-        // Register blocks here
-        BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
+
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
